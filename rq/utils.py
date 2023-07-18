@@ -165,11 +165,21 @@ def utcformat(dt):
 
 
 def utcparse(string):
-    try:
-        return datetime.datetime.strptime(string, _TIMESTAMP_FORMAT)
-    except ValueError:
-        # This catches any jobs remain with old datetime format
-        return datetime.datetime.strptime(string, '%Y-%m-%dT%H:%M:%SZ')
+    # This catches RQ < 0.4 datetime formats
+    formats = [
+        _TIMESTAMP_FORMAT,
+        '%Y-%m-%dT%H:%M:%SZ',
+        '%Y-%m-%dT%H:%M:%S.%f+00:00',
+        '%Y-%m-%dT%H:%M:%S+00:00',
+        '%Y-%m-%d %H:%M:%S+00:00',
+        '%Y-%m-%d %H:%M:%S+0000',
+        ]
+    for format in formats:
+        try:
+            return datetime.datetime.strptime(string, format)
+        except ValueError:
+            pass
+    raise ValueError('Unable to parse: %s' % string)
 
 
 def first(iterable, default=None, key=None):
