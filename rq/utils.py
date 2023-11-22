@@ -250,7 +250,7 @@ def backend_class(holder, default_name, override=None):
 
 
 def str_to_date(date_str):
-    if date_str is None:
+    if not date_str:
         return
     else:
         return utcparse(as_text(date_str))
